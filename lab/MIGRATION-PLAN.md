@@ -25,7 +25,19 @@ structured outputs, multimodal input, and evaluation.
 - Do not modify the sibling source repository or the running MCP during this
   documentation migration. Record conflicts requiring coordination instead.
 
-This file is the plan only; the learner instructions have not yet been changed.
+### Implementation status
+
+The first instruction rewrite and matching learner scripts are now in this
+repository. Runnable `--module` checkpoints replace copied snapshots to keep
+the fast path within the time budget. Module 1.4 captures confirmed tool
+results in memory and omits prices, pickup times, and internal identifiers.
+Module 1.5 is deliberately read-only: it extracts and reviews requests but
+does not place a catering or test order.
+
+The original audit and conflict register below remain the planning record.
+The approved knowledge source, replacement images, model/knowledge calls,
+and timed learner-VM rehearsal are release checks, not verified outcomes.
+See [the instructor setup and release checklist](../README.md).
 
 ## Evidence and assumptions
 
