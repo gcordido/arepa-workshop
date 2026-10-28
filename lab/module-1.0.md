@@ -25,7 +25,7 @@ has. This time includes the lab introduction.
    project. There should only be one.
 6. If a dialog pops up, select the close or **Skip** button.
 
-[PLACEHOLDER FOR IMAGE]
+![Microsoft Foundry home.](images/01-foundry-home.png)
 
 ### Open the configured deployment
 
@@ -33,7 +33,7 @@ Choose **Build > Models > Deployments**. Open the deployment matching
 `FOUNDRY_MODEL_DEPLOYMENT` in the root `.env`, then **Open in playground**.
 You need only this deployment, even if others are listed.
 
-[PLACEHOLDER FOR IMAGE]
+![Foundry deployments with the configured deployment selected.](images/02-deployments.png)
 
 > A model is the underlying capability. A deployment is the named endpoint
 > configured in your project. The agent adds instructions, state, and tools
@@ -50,7 +50,7 @@ You are the ordering assistant for Arepa Lab, a Venezuelan arepa store.
 Ask:
 
 ```text
-What arepas are on your menu today, and what is their availability?
+My friend's birthday is coming up and he loves Venezuelan Arepas. Which arepas should I order?
 ```
 
 ### Check the source, not the confidence
@@ -61,7 +61,7 @@ menu connection. A familiar item name is not proof of availability or price.
 
 Now ask: `What's your refund policy?`
 
-If it invents a reasonable-sounding policy, that is the risk: confidence
+If it fabricated a reasonable-sounding policy, that is the risk: confidence
 without a source. If it admits not knowing, that is the right boundary.
 Nothing in this conversation establishes Arepa Lab's actual refund policy.
 
@@ -76,10 +76,10 @@ Click the **Continue in code** button. This is the same call you will make from 
 next module. Note the three things it needs: the endpoint, a key, and the
 deployment name.
 
-[PLACEHOLDER FOR IMAGE]
+![Foundry playground with the Arepa Lab role, birthday question, and Continue in code button.](images/03-playground.png)
+
+The screenshot is illustrative. Use the deployment specified by
+`FOUNDRY_MODEL_DEPLOYMENT` in your root `.env`; your response may differ.
 
 **Checkpoint 1.** You can distinguish instructions from a source of store
 facts. You have located the one deployment the agent will use.
-
-<!-- Image refresh: use the audited Foundry home/deployment screenshots if
-still accurate; replace the Sparkles playground capture before publishing. -->
