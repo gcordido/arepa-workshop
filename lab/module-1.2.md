@@ -9,8 +9,9 @@ The Arepa Lab **MCP server** provides those tools and the store's persona.
 
 ### Prepare the changes
 
-Check `AREPA_MCP_URL` in the root `.env`. Keep the instructor-supplied URL:
-Azure resource names stay unchanged even though the app serves Arepa Lab.
+Check `AREPA_MCP_URL` in the root `.env`:
+`https://ca-arepa-mcp.yellowbeach-684b8340.eastus.azurecontainerapps.io/mcp/`.
+Use the trailing-slash canonical path. Azure resource names stay unchanged.
 
 From `arepa-agent/`, back up your current file:
 
@@ -38,9 +39,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from agent_framework import Agent, MCPStreamableHTTPTool
-from agent_framework.foundry import AnthropicFoundryClient
-
-from settings import ToolTrace
+from settings import ToolTrace, create_chat_client
 ```
 
 ### Tools first, then the persona
@@ -55,11 +54,7 @@ prints tool names without their arguments or full results.
 ```python
 async def main() -> None:
     # 2. Keep the same configured model client.
-    chat_client = AnthropicFoundryClient(
-        model=os.environ["FOUNDRY_MODEL_DEPLOYMENT"],
-        api_key=os.environ["FOUNDRY_API_KEY"],
-        base_url=os.environ["FOUNDRY_ENDPOINT"],
-    )
+    chat_client = create_chat_client()
 
     # 3. Discover the store tools; close the connection on exit or error.
     async with AsyncExitStack() as stack:
@@ -123,8 +118,12 @@ Answer the agent's greeting:
 
 Do not create a second identity to get another real order.
 Ask `Show today's menu only; do not place an order.`
-Watch for `[tool] list_arepas`; check the returned display names and
-qualitative stock labels. Machine IDs stay internal.
+Watch for `[tool] list_arepas`. Check that **every returned item** appears in a
+numbered list with its **name, description, USD price and `stock_label`**.
+If a description is missing, the agent must say it is unavailable instead of
+inventing one. An empty menu must not produce invented choices. Machine IDs
+stay internal. These presentation instructions belong to the server prompt;
+do not add a competing menu renderer or persona to the client.
 
 ### Make one explicit order
 
@@ -159,4 +158,6 @@ Type `exit`. Module 1.4 adds receipt support; use its simulated example or
 a test order, not another real order.
 
 **Checkpoint 3.** Your agent used live tools and the server persona to
-complete an explicit test or real order, and you saved your customer ID.
+show every returned menu item in a numbered list with its name, description,
+USD price and `stock_label`, then complete an explicit test or real order.
+You saved your customer ID.

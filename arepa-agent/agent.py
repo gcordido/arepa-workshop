@@ -5,13 +5,12 @@ block. Completed versions of every module live in snapshots/ if you need
 to catch up.
 """
 import asyncio
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from agent_framework import Agent
-from agent_framework.foundry import AnthropicFoundryClient
+from settings import create_chat_client
 
 # 1. Load settings from .env
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
@@ -23,11 +22,7 @@ def reply(response) -> str:
 
 async def main() -> None:
     # 2. The configured model client; store tools are added in Module 1.2.
-    chat_client = AnthropicFoundryClient(
-        model=os.environ["FOUNDRY_MODEL_DEPLOYMENT"],
-        api_key=os.environ["FOUNDRY_API_KEY"],
-        base_url=os.environ["FOUNDRY_ENDPOINT"],
-    )
+    chat_client = create_chat_client()
 
     # 3. The agent starts without store instructions or tools.
     arepa_agent = Agent(client=chat_client, name="arepa-agent")

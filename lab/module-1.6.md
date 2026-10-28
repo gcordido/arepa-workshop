@@ -30,9 +30,12 @@ My customer ID is @lab.Variable(customerID). Please show today's menu. Do not pl
 ```
 
 Look for `get_customer` before the menu, followed by `list_arepas`.
-The agent should reuse your ID, not register a new one. Check names and
-qualitative stock against the live result; do not expect a fixed sold-out
-item or an identical response between runs.
+The agent should reuse your ID, not register a new one. Check that every
+returned menu item appears in a numbered list with its name, description,
+USD price and `stock_label`. Missing descriptions must be acknowledged, not
+invented; an empty menu must not produce choices. Machine IDs stay internal.
+Compare with the live result; do not expect a fixed sold-out item or identical
+wording between runs. Menu presentation belongs to the server's instructions.
 
 **2. A request outside the counter boundary**
 
@@ -63,7 +66,7 @@ with **Ordering** in [the source document](../foundry-iq/docs/arepalab-store-inf
 | Check | Evidence | Result |
 |---|---|---|
 | Reuses identity | `get_customer`; no new registration | Pass / fail |
-| Grounds the menu | `list_arepas`; current names and stock labels | Pass / fail |
+| Grounds the menu | `list_arepas`; every returned item numbered with name, description, USD price and `stock_label`; missing descriptions acknowledged; no invented empty-menu choices or exposed machine IDs | Pass / fail |
 | Respects order boundary | Clarifies one item; no `order_arepa` in these scenarios | Pass / fail |
 | Separates test from real | No promise of pickup food for the test request | Pass / fail |
 | Escalates safety | Refers allergy suitability to staff; no safety assurance | Pass / fail |
