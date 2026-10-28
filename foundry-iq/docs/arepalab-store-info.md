@@ -1,5 +1,13 @@
 # Arepa Lab Store Customer Information
 
+This document describes a **fictional retail scenario** for retrieval practice.
+Its delivery, payment, refund, deposit and cancellation policies do not apply
+to the live workshop counter. The MCP server owns the current menu, eligibility,
+single-item order limits, status and pending-only cancellation. Retail policies
+cannot override those rules or authorize payments or catering through MCP.
+No statement here establishes the actual counter's ingredients, preparation,
+allergen safety or dietary suitability; ask the workshop staff.
+
 ## About Us
 
 Arepa Lab is a Venezuelan arepa shop specializing in small-batch, handcrafted
@@ -58,6 +66,8 @@ in advance and require a 50% deposit at the time of order.
 
 ## Delivery
 
+These fictional delivery services are not offered by the workshop MCP counter.
+
 We offer local delivery and nationwide shipping.
 
 ### Local Delivery
@@ -79,6 +89,10 @@ We offer local delivery and nationwide shipping.
 
 ## Returns and Refunds
 
+These fictional retail refund and cancellation windows do not apply to the
+workshop counter. Only a pending real counter order can be cancelled through
+MCP; staff handle questions about later states. MCP does not process payments.
+
 Because our arepas are perishable food items, we generally cannot accept
 physical returns. However, your satisfaction is guaranteed:
 
@@ -96,11 +110,11 @@ physical returns. However, your satisfaction is guaranteed:
 
 ## Allergens and Dietary Information
 
-- All of our products are Gluten-Free.
-- Vegan items are prepared with dedicated tools, but we cannot
-  guarantee a completely allergen-free environment.
-- Full ingredient and allergen lists are available on request and on each
-  product page online.
+- This fictional retail document does not establish that workshop food is
+  gluten-free, vegan or safe for any allergy or dietary requirement.
+- Ask workshop staff about actual ingredients, shared equipment and preparation
+  before deciding suitability. Do not infer safety from a menu name, description
+  or a retrieved retail policy.
 
 ## Loyalty Program
 

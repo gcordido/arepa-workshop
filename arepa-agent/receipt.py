@@ -7,11 +7,10 @@ import argparse
 import json
 from pathlib import Path
 
-from anthropic import AnthropicFoundry
 from jsonschema import validate
 from mcp.types import CallToolResult
 
-from settings import model_settings
+from settings import structured_output
 
 # 1. Describe a single confirmed counter order, not a payment or catering receipt.
 RECEIPT_SCHEMA = {
@@ -46,19 +45,25 @@ class OrderCapture:
         if result.isError:
             self.source = None
         texts = [block.text for block in result.content if block.type == "text"]
-        if result.structuredContent is not None:
-            data = result.structuredContent
-        elif texts:
-            data = json.loads(texts[0])
-        else:
-            raise ValueError("Store tool returned no JSON result.")
+        try:
+            if result.structuredContent is not None:
+                data = result.structuredContent
+            elif texts:
+                data = json.loads(texts[0])
+            else:
+                raise ValueError("Store tool returned no JSON result.")
+        except ValueError:
+            self.source = None
+            raise
         if isinstance(data, dict):
             if data.get("success") is False:
                 self.source = None
             elif data.get("success") is True:
                 # A successful registration/cancellation must not leave an old receipt.
                 self.source = None
-                if "kind" in data and "flavor" in data and not result.isError:
+                # Cancellation also returns kind and flavor; only an accepted
+                # order includes the public board_name in the seven-tool contract.
+                if all(key in data for key in ("kind", "flavor", "board_name")) and not result.isError:
                     expected_summary(data)
                     # Keep only public fields; do not persist internal order identifiers.
                     self.source = {
@@ -130,27 +135,12 @@ def make_request_receipt(arepa_request: dict[str, object]) -> dict[str, object]:
 def make_receipt(source: dict[str, object]) -> dict[str, object]:
     # 5. Establish the expected facts first, then ask for schema-constrained output.
     expected = expected_summary(source)
-    settings = model_settings()
-    with AnthropicFoundry(
-        api_key=settings["api_key"], base_url=settings["base_url"]
-    ) as client:
-        response = client.messages.create(
-            model=settings["model"],
-            max_tokens=500,
-            output_config={"format": {"type": "json_schema", "schema": RECEIPT_SCHEMA}},
-            messages=[{
-                "role": "user",
-                "content": (
-                    "Return this order summary exactly, without changing any values. "
-                    "It is not a payment receipt. Do not add identifiers or prices.\n"
-                    + json.dumps(expected)
-                ),
-            }],
-        )
-    # A thinking block can precede text; content[0] is not necessarily the answer.
-    text = next((b.text for b in response.content if b.type == "text"), None)
-    if text is None:
-        raise ValueError("Model returned no text; no summary was produced.")
+    text = structured_output(
+        "Return this order summary exactly, without changing any values. "
+        "It is not a payment receipt. Do not add identifiers or prices.\n"
+        + json.dumps(expected),
+        RECEIPT_SCHEMA, max_tokens=500,
+    )
     summary = checked_json(text, RECEIPT_SCHEMA)
     # 6. Correct JSON shape does not guarantee correct item names or order facts.
     if summary != expected:

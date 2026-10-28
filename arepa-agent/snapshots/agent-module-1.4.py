@@ -10,10 +10,9 @@ from urllib.parse import quote
 from dotenv import load_dotenv
 
 from agent_framework import Agent, MCPStreamableHTTPTool
-from agent_framework.foundry import AnthropicFoundryClient
 
 from receipt import OrderCapture, make_receipt
-from settings import ROUTING, ToolTrace
+from settings import ROUTING, ToolTrace, create_chat_client
 
 # 1. Load the workshop root .env, just as in Module 1.1.
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
@@ -27,11 +26,7 @@ def reply(response) -> str:
 
 async def main() -> None:
     # 2. Keep the same configured model client.
-    chat_client = AnthropicFoundryClient(
-        model=os.environ["FOUNDRY_MODEL_DEPLOYMENT"],
-        api_key=os.environ["FOUNDRY_API_KEY"],
-        base_url=os.environ["FOUNDRY_ENDPOINT"],
-    )
+    chat_client = create_chat_client()
     # Module 1.4: keep confirmed tool data for receipt requests.
     arepa_orders = OrderCapture()
     # The exit stack closes connected servers on normal exit and on exceptions.

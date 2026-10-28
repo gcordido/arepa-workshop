@@ -66,6 +66,13 @@ KNOWLEDGE_SOURCE_NAME = f"{KNOWLEDGE_BASE_NAME}-source"
 SEMANTIC_CONFIG_NAME = "cupcake-semantic"
 # The SDK's default API version. The MCP URL the agent uses must match it.
 API_VERSION = "2026-08-01-preview"
+SOURCE_SCOPE = (
+    "Fictional retail scenario for retrieval practice only. These delivery, "
+    "payment, refund, deposit and cancellation policies do not apply to the "
+    "live workshop counter. MCP owns live menu, eligibility, order limits, "
+    "status and pending-only cancellation. Ask workshop staff about actual "
+    "ingredients, preparation, allergen safety and dietary suitability."
+)
 
 
 def credential():
@@ -82,7 +89,11 @@ def chunk_document(path: Path) -> list[dict]:
         if not body:
             continue
         heading = body.splitlines()[0].lstrip("# ").strip()
-        chunks.append({"id": str(i), "title": heading, "category": heading, "content": body})
+        # A retrieved section must carry its scope even without the introduction.
+        chunks.append({
+            "id": str(i), "title": heading, "category": heading,
+            "content": SOURCE_SCOPE + "\n\n" + body,
+        })
     return chunks
 
 

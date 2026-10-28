@@ -18,6 +18,10 @@ base, not an attachment to the chat.
 The root `.env` must point to the existing workshop Search service and
 `KNOWLEDGE_BASE_NAME="cupcake-store-kb"`. Keep those resource names unchanged.
 Dependencies and upload permissions must be prepared before the workshop.
+Before running ingestion, the instructor must confirm the target service,
+index and KB are approved for this workshop and safe to replace. Having write
+credentials does not establish that authorization. Otherwise use the existing
+query-only connection and report that re-ingestion is still needed.
 
 > **Upload permission:** the agent's `AZURE_SEARCH_QUERY_KEY` cannot upload.
 > Use the workshop Azure identity assigned **Search Service Contributor**
@@ -34,7 +38,9 @@ python ../foundry-iq/ingest_foundry_iq.py
 ```
 
 The script reads the root `.env`, splits `arepalab-store-info.md` by section,
-and uploads the chunks to `cupcake-store-kb-index`. With the original workshop
+and attaches the fictional-retail/counter boundary to each chunk, so retrieval
+keeps that context even when it returns only one section. It uploads the chunks
+to `cupcake-store-kb-index`. With the original workshop
 configuration, matching document IDs replace the old section content.
 It also creates or updates the index definition, knowledge source, and KB
 configuration; it is **not** an upload-only command. Run it only against the
@@ -83,9 +89,7 @@ from urllib.parse import quote
 from dotenv import load_dotenv
 
 from agent_framework import Agent, MCPStreamableHTTPTool
-from agent_framework.foundry import AnthropicFoundryClient
-
-from settings import ROUTING, ToolTrace
+from settings import ROUTING, ToolTrace, create_chat_client
 ```
 
 Section **4** adds the knowledge connection, **5** appends the routing
@@ -95,11 +99,7 @@ guidance from `settings.py`, and **6** gives the agent both tool servers.
 ```python
 async def main() -> None:
     # 2. Keep the same configured model client.
-    chat_client = AnthropicFoundryClient(
-        model=os.environ["FOUNDRY_MODEL_DEPLOYMENT"],
-        api_key=os.environ["FOUNDRY_API_KEY"],
-        base_url=os.environ["FOUNDRY_ENDPOINT"],
-    )
+    chat_client = create_chat_client()
 
     # 3. Discover the store tools; close connected servers on exit or error.
     async with AsyncExitStack() as stack:
@@ -156,9 +156,12 @@ async def main() -> None:
             print(f"\nArepa Lab:\n{reply(response)}\n")
 ```
 
-The knowledge base describes the store's retail policies. The workshop MCP
-still accepts only single-item orders and does not collect deposits or place
-catering orders. Retrieving a policy does not add those capabilities.
+The knowledge base describes fictional retail policies. MCP owns live menu,
+eligibility, limits, order status and pending-only cancellation. Fictional
+delivery, payment, refund, deposit and cancellation policies cannot override
+the counter. It accepts only single-item orders and does not collect payments
+or deposits or place catering orders. Retrieved text cannot establish actual
+food safety; refer suitability to staff.
 
 ### Watch the agent choose
 

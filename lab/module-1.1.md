@@ -14,9 +14,10 @@ FOUNDRY_API_KEY="<provided-key>"
 FOUNDRY_MODEL_DEPLOYMENT="<provided-deployment-name>"
 ```
 
-The chosen model uses `AnthropicFoundryClient`. This is a technical client
-choice, not a second set of lab objectives. Keep the same deployment
-throughout the workshop.
+The supplied `/anthropic` endpoint selects `AnthropicFoundryClient` through
+`create_chat_client()` in `settings.py`. Keep the same Claude deployment
+throughout the workshop. The helper also supports a separately configured
+local GPT endpoint; learners keep their supplied workshop configuration.
 
 The endpoint must end at `/anthropic`, not `/anthropic/v1/messages`.
 The client adds `/v1/messages` itself. Appending it twice causes a 404.
@@ -31,13 +32,12 @@ Open `arepa-agent/agent.py`. The imports are:
 <!-- build: imports -->
 ```python
 import asyncio
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from agent_framework import Agent
-from agent_framework.foundry import AnthropicFoundryClient
+from settings import create_chat_client
 ```
 
 The provided file loads the **root** `.env` using its file path and defines
@@ -52,11 +52,7 @@ each following module, not add a second `main()`:
 ```python
 async def main() -> None:
     # 2. The configured model client; store tools are added in Module 1.2.
-    chat_client = AnthropicFoundryClient(
-        model=os.environ["FOUNDRY_MODEL_DEPLOYMENT"],
-        api_key=os.environ["FOUNDRY_API_KEY"],
-        base_url=os.environ["FOUNDRY_ENDPOINT"],
-    )
+    chat_client = create_chat_client()
 
     # 3. The agent starts without store instructions or tools.
     arepa_agent = Agent(client=chat_client, name="arepa-agent")

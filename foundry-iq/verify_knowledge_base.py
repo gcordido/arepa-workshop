@@ -19,14 +19,18 @@ Run from the repo root after `pip install -r requirements.txt`. It reads
 """
 
 import asyncio
+from contextlib import AsyncExitStack
 import os
+from pathlib import Path
 import re
 import sys
 
-from dotenv import find_dotenv, load_dotenv
+from dotenv import load_dotenv
 
 from agent_framework import Agent, MCPStreamableHTTPTool
-from agent_framework.foundry import AnthropicFoundryClient
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "arepa-agent"))
+from settings import create_chat_client
 
 # Each question, and the facts from docs/arepalab-store-info.md that a
 # correct answer has to mention: (label, regex).
@@ -64,11 +68,7 @@ def tool_calls(response) -> list[str]:
 
 
 def build_agent() -> tuple[Agent, MCPStreamableHTTPTool]:
-    chat_client = AnthropicFoundryClient(
-        model=os.environ["FOUNDRY_MODEL_DEPLOYMENT"],
-        api_key=os.environ["FOUNDRY_API_KEY"],
-        base_url=os.environ["FOUNDRY_ENDPOINT"],
-    )
+    chat_client = create_chat_client()
     search_endpoint = os.environ["AZURE_SEARCH_ENDPOINT"].rstrip("/")
     search_key = os.environ["AZURE_SEARCH_QUERY_KEY"]
     kb_name = os.environ.get("KNOWLEDGE_BASE_NAME", "cupcake-store-kb")
@@ -85,7 +85,10 @@ def build_agent() -> tuple[Agent, MCPStreamableHTTPTool]:
             "You are the Arepa Lab assistant. Use arepa-knowledge-base to "
             "look up documented store hours, delivery, returns, allergens, loyalty "
             "and bulk-order policies. These fictional retail policies do not add "
-            "capabilities to the convention ordering MCP. "
+            "capabilities to the convention ordering MCP, which owns live menu, "
+            "eligibility, order limits, status and pending-only cancellation. "
+            "Retail delivery, payment, refund, deposit and cancellation policies "
+            "cannot override the live counter. "
             "Do not invent store information or safety assurances. "
             "Refer dietary suitability and food-safety decisions to staff."
         ),
@@ -96,33 +99,32 @@ def build_agent() -> tuple[Agent, MCPStreamableHTTPTool]:
 
 async def main() -> int:
     show_answers = "--answers" in sys.argv
-    load_dotenv(find_dotenv(usecwd=True), override=True)
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=True)
 
     print(f"Foundry IQ check: model {os.environ['FOUNDRY_MODEL_DEPLOYMENT']}, "
           f"knowledge base {os.environ.get('KNOWLEDGE_BASE_NAME', 'cupcake-store-kb')}\n")
 
     agent, knowledge_tool = build_agent()
-    await knowledge_tool.connect()
-
     passed = 0
-    for i, (question, facts) in enumerate(CASES, 1):
-        response = await agent.run(question, session=agent.create_session())
-        answer = reply_text(response)
+    async with AsyncExitStack() as stack:
+        await knowledge_tool.connect()
+        stack.push_async_callback(knowledge_tool.close)
+        for i, (question, facts) in enumerate(CASES, 1):
+            response = await agent.run(question, session=agent.create_session())
+            answer = reply_text(response)
 
-        checks = [("used the knowledge base", KB_TOOL in tool_calls(response))]
-        checks += [(f"mentions {label}", re.search(pattern, answer, re.I) is not None)
-                   for label, pattern in facts]
-        ok = all(result for _, result in checks)
-        passed += ok
+            checks = [("used the knowledge base", KB_TOOL in tool_calls(response))]
+            checks += [(f"mentions {label}", re.search(pattern, answer, re.I) is not None)
+                       for label, pattern in facts]
+            ok = all(result for _, result in checks)
+            passed += ok
 
-        print(f"{i}. {question}")
-        for label, result in checks:
-            print(f"   {'PASS' if result else 'FAIL'}  {label}")
-        if show_answers:
-            print("\n   " + answer.replace("\n", "\n   "))
-        print()
-
-    await knowledge_tool.close()
+            print(f"{i}. {question}")
+            for label, result in checks:
+                print(f"   {'PASS' if result else 'FAIL'}  {label}")
+            if show_answers:
+                print("\n   " + answer.replace("\n", "\n   "))
+            print()
 
     print(f"Result: {passed}/{len(CASES)} questions passed")
     if not show_answers:

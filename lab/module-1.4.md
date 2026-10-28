@@ -23,9 +23,10 @@ Find the API's schema configuration:
 output_config={"format": {"type": "json_schema", "schema": RECEIPT_SCHEMA}}
 ```
 
-This is the keyword argument to `messages.create` inside `receipt.py`,
-not an additional edit to `agent.py`. Inspect the prepared helper rather
-than reimplementing it during the lab.
+This is the Claude `messages.create` configuration in the shared
+`structured_output` helper in `settings.py`, called by `receipt.py`.
+It is not an additional edit to `agent.py`. The optional local GPT path uses
+strict JSON-schema `response_format` with the same local validation.
 
 The helper selects a text block, parses JSON, validates the schema locally,
 and compares every field with the expected summary from the source result.
@@ -59,21 +60,16 @@ from urllib.parse import quote
 from dotenv import load_dotenv
 
 from agent_framework import Agent, MCPStreamableHTTPTool
-from agent_framework.foundry import AnthropicFoundryClient
 
 from receipt import OrderCapture, make_receipt
-from settings import ROUTING, ToolTrace
+from settings import ROUTING, ToolTrace, create_chat_client
 ```
 
 <!-- build: main -->
 ```python
 async def main() -> None:
     # 2. Keep the same configured model client.
-    chat_client = AnthropicFoundryClient(
-        model=os.environ["FOUNDRY_MODEL_DEPLOYMENT"],
-        api_key=os.environ["FOUNDRY_API_KEY"],
-        base_url=os.environ["FOUNDRY_ENDPOINT"],
-    )
+    chat_client = create_chat_client()
     # Module 1.4: keep confirmed tool data for receipt requests.
     arepa_orders = OrderCapture()
 

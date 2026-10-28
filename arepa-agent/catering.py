@@ -7,14 +7,13 @@ import json
 from collections.abc import Awaitable, Callable, Mapping
 from contextlib import AsyncExitStack
 from pathlib import Path
+from typing import Literal
 from urllib.parse import quote
 
-from anthropic import AnthropicFoundry
 from agent_framework import Agent, FunctionInvocationContext, MCPStreamableHTTPTool, MiddlewareFailure
-from agent_framework.foundry import AnthropicFoundryClient
 
 from receipt import OrderCapture, checked_json, make_receipt, make_request_receipt
-from settings import ROUTING, ToolTrace, model_settings, reply, setting
+from settings import ROUTING, ToolTrace, create_chat_client, reply, setting, structured_output
 
 # 1. Extract the customer's request, including corrections and unresolved details.
 ORDER_SCHEMA = {
@@ -47,42 +46,24 @@ ORDER_SCHEMA = {
 
 def read_order(path: Path) -> dict[str, object]:
     # 2. Encode the photo as an image block and request schema-constrained extraction.
-    media_types = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png"}
+    media_types: dict[str, Literal["image/jpeg", "image/png"]] = {
+        ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+    }
     media_type = media_types.get(path.suffix.lower())
     if media_type is None:
         raise ValueError("Use a JPEG or PNG photo of the Arepa request.")
     data = base64.standard_b64encode(path.read_bytes()).decode("ascii")
-    settings = model_settings()
-    with AnthropicFoundry(
-        api_key=settings["api_key"], base_url=settings["base_url"]
-    ) as client:
-        response = client.messages.create(
-            model=settings["model"],
-            max_tokens=1200,
-            output_config={"format": {"type": "json_schema", "schema": ORDER_SCHEMA}},
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "image", "source": {
-                        "type": "base64", "media_type": media_type, "data": data
-                    }},
-                    {"type": "text", "text": (
-                        "Extract this Arepa Lab handwritten REQUEST, not an accepted order. "
-                        "Crossed-out items are cancelled; use the written replacement. "
-                        "Count tally marks; use null for an unreadable quantity "
-                        "and record the uncertainty instead of guessing. "
-                        "Copy the allergy note verbatim. "
-                        "List corrections and anything illegible in uncertainties. "
-                        "Do not infer ingredients, safety, prices or missing items. "
-                        "Use an empty customer string if no name is readable."
-                    )},
-                ],
-            }],
-        )
-    # Select text explicitly because other response block types may come first.
-    text = next((b.text for b in response.content if b.type == "text"), None)
-    if text is None:
-        raise ValueError("Model returned no text; the photo was not extracted.")
+    text = structured_output(
+        "Extract this Arepa Lab handwritten REQUEST, not an accepted order. "
+        "Crossed-out items are cancelled; use the written replacement. "
+        "Count tally marks; use null for an unreadable quantity "
+        "and record the uncertainty instead of guessing. "
+        "Copy the allergy note verbatim. "
+        "List corrections and anything illegible in uncertainties. "
+        "Do not infer ingredients, safety, prices or missing items. "
+        "Use an empty customer string if no name is readable.",
+        ORDER_SCHEMA, max_tokens=1200, image=(media_type, data),
+    )
     return checked_json(text, ORDER_SCHEMA)
 
 
@@ -103,7 +84,7 @@ class TestOrdersOnly(ToolTrace):
 async def work_order(arepa_request: dict[str, object]) -> dict[str, object] | None:
     # 4. Give the validated request to an agent with live store tools and policy search.
     checked_json(json.dumps(arepa_request), ORDER_SCHEMA)
-    chat_client = AnthropicFoundryClient(**model_settings())
+    chat_client = create_chat_client()
     arepa_orders = OrderCapture()
     # Close both connected servers even if retrieval or a later model call fails.
     async with AsyncExitStack() as stack:
