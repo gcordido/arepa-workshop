@@ -18,7 +18,7 @@ has. This time includes the lab introduction.
 
    **Access Pass**: `@lab.CloudPortalCredential(User1).AccessToken`
 
-   >[!note]The sign-in details are also on the Resources tab.
+>[!note]The sign-in details are also on the Resources tab.
 
 4. If the top bar has a **New Foundry** toggle, make sure it is turned on.
 5. From the project listings on the main page, select the pre-created
@@ -29,8 +29,7 @@ has. This time includes the lab introduction.
 
 ### Open the configured deployment
 
-Choose **Build > Models > Deployments**. Open the deployment matching
-`FOUNDRY_MODEL_DEPLOYMENT` in the root `.env`, then **Open in playground**.
+Choose **Build > Models > Deployments**. Open the deployment of claude-sonnet-5, then **Open in playground**.
 You need only this deployment, even if others are listed.
 
 ![Foundry deployments with the configured deployment selected.](images/02-deployments.png)
@@ -78,8 +77,7 @@ deployment name.
 
 ![Foundry playground with the Arepa Lab role, birthday question, and Continue in code button.](images/03-playground.png)
 
-The screenshot is illustrative. Use the deployment specified by
-`FOUNDRY_MODEL_DEPLOYMENT` in your root `.env`; your response may differ.
+The screenshot is illustrative. We will be using claude-sonnet-5.
 
 **Checkpoint 1.** You can distinguish instructions from a source of store
 facts. You have located the one deployment the agent will use.
