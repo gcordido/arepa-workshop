@@ -139,11 +139,17 @@ Read the current six-character voucher **last**, after the item and kind
 are chosen. Both kinds require it. If rejected, reread the display and follow
 the recovery instructions; do not keep guessing.
 
+![Arepa Lab dashboard showing Test kitchen, Preparing, and Ready for pickup.](images/dashboard.png)
+
+Use the **Order voucher** at the top right, not the **Training key** in the
+footer. The pictured voucher is illustrative; read the current code from
+the live dashboard.
+
 Watch the `order_arepa` call and reply:
 
 - Collect a real order only when the dashboard says **Ready for pickup**.
   Look for your displayed board name and follow staff directions.
-- A test order completes automatically in the test feed. It is not tracked
+- A test order completes automatically in **Test kitchen**. It is not tracked
   as an active real order by `check_order_status`.
 - A failed tool call is not a successful order. Follow the correction prompt;
   if stock changed, choose again from a refreshed menu.
@@ -155,5 +161,3 @@ a test order, not another real order.
 show every returned menu item in a numbered list with its name, description,
 USD price and `stock_label`, then complete an explicit test or real order.
 You saved your customer ID.
-
-<!-- Replace the old store dashboard screenshot with an Arepa Lab capture. -->

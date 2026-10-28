@@ -46,7 +46,7 @@ As a test only, I want two of the first item on the menu. Do not place anything 
 The agent should recognize the one-item order boundary, clarify a single
 item, keep the order kind as test, and explain that it still needs a current
 voucher. It must not place an order or imply that a test produces food.
-Do not invent a voucher to force an error.
+Do not fabricate a voucher to force an error.
 
 **3. Food safety and documented information**
 
