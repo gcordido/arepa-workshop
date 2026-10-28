@@ -15,48 +15,16 @@ By the end, you will have:
 - Connected live tools and a server-managed persona through MCP.
 - Connected the store's knowledge base through Foundry IQ.
 - Produced a schema-checked order summary grounded in a tool result.
-- Extracted and reviewed a handwritten request without placing it.
+- Read a handwritten request, applied store policy, and optionally placed one
+  counter test order without accepting the full catering request.
 - Evaluated the agent against ordering and safety boundaries.
 
-## Your one-hour route
 
-| Module | Focus | Minutes |
-|---|---|---:|
-| 1.0 | Instructions and grounding, including this introduction | 5 |
-| 1.1 | Agent and session | 7 |
-| 1.2 | Store tools, persona, and one order | 12 |
-| 1.3 | Store knowledge | 8 |
-| 1.4 | Structured order summary | 6 |
-| 1.5 | Handwritten request | 8 |
-| 1.6 | Agent evaluation and wrap-up | 9 |
-| Buffer | Sign-in or recovery | 5 |
-| **Total** | | **60** |
+**How the lab works.** Every module ends with a checkpoint. Modules 1.4 through
+1.6 are independent, so if you fall behind, skip to the next one. Completed
+code for Modules 1.1-1.4 is in
+[arepa-agent/snapshots/](../arepa-agent/snapshots/); copy the one you
+need over `agent.py` and carry on. Module 1.5 uses the prepared `catering.py`
+helper; Module 1.6 returns to the Module 1.3 snapshot.
 
-Use the prepared code; do not retype entire scripts. The agent has runnable
-checkpoints selected with `--module`, so you can catch up without copying
-files or losing edits. Each new process starts a fresh conversation.
-
-Module 1.3 builds on 1.2. Module 1.4 uses the same agent or a clearly labeled
-simulated result if you need to catch up. Module 1.5 runs separately.
-Module 1.6 returns to the grounded agent from 1.3.
-
-## Your environment
-
-Use VS Code, its PowerShell terminal, and the Foundry portal in the provisioned
-Skillable VM. Dependencies, the model deployment, the store MCP, and the
-knowledge base are ready. The root `.env` is prefilled; do not replace it
-with the example file.
-
-The runnable code is in `arepa-agent/`. The same configured model is used
-throughout. You will still see its actual client and endpoint names in code.
-
-## Practice versus pickup
-
-The counter accepts one arepa per order and one real arepa per customer.
-Test orders do not consume stock or produce food, but still require a valid
-dashboard voucher. Use test orders after your first ordering exercise.
-This demo does not process payments.
-
-Keep the customer ID the server assigns you and reuse it in later modules.
-Never create additional identities to work around an order limit. Food-safety
-and dietary-suitability decisions go to staff, not to an inferred answer.
+**Your environment.** You will use VS Code with the repo open, its terminal, and the Foundry portal in a browser tab. The modules tell you when to open each one. The '.env' file at the top of the repo is already filled in for you unless the instructor says otherwise.

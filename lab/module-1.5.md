@@ -1,73 +1,69 @@
-## Module 1.5: Read a handwritten request (8 minutes)
+## Module 1.5: Read and work a handwritten request (8 minutes)
 
-A customer brings a handwritten Arepa request. It has tally quantities, a
+A catering request arrives as a photo. It has tally quantities, a
 crossed-out item with a replacement, and an allergy note. We will extract
 and review it, not pretend that the whole request has been accepted.
 
-### Inspect the note first
+### Inspect the note
 
 Open the instructor-supplied `arepa-agent/images/catering-order.jpg`.
-Read its names, quantities, correction, and allergy note yourself.
-The Arepa version must match the prepared extraction example:
+It should show Eugenia, seven Catira, Pernil crossed out for three Pelua,
+twenty-eight Reina Pepiada, and the margin note `No nuts please!`.
+Quantities are tally marks; compare them yourself before trusting extraction.
 
-- Customer: Alex.
-- Catira: seven tally marks.
-- Pernil crossed out and replaced with Pelua: three tally marks.
-- Reina Pepiada: five tally marks.
-- Allergy note: `No nuts please!`
+This request exceeds the retail bulk threshold. The knowledge base says
+25+ arepas require 72 hours' notice and a 50% deposit. That policy does not
+make the workshop counter capable of catering checkout.
 
-Do not use the old cupcake photo. If the replacement photo is not supplied,
-use the explicitly labeled pre-extracted fallback below; that path does not
-demonstrate vision.
+### Inspect the script
 
-### Inspect the pipeline
+Open `arepa-agent/catering.py`. It performs three steps:
 
-Open `arepa-agent/catering.py`:
-
-1. `read_order` sends the photo as an image block with `ORDER_SCHEMA`.
-   The extraction records items, corrections, allergy notes, and uncertainties.
-2. `current_menu` calls **only** `list_arepas` through a read-only client path.
-3. `review_request` compares the extracted names with the live menu and
-   explains the order boundary.
-
-The script has no registration, ordering, or cancellation path. No customer
-ID or voucher is needed, and it cannot consume your real-order allowance.
+1. `read_order` extracts items, quantities, corrections, allergy notes and
+   uncertainties into `ORDER_SCHEMA`.
+2. `work_order` gives the request to an agent connected to the store and
+   Foundry IQ. It checks the live menu, looks up allergen and bulk-order
+   policy, and explains what staff must handle. Allergy suitability goes
+   to staff; the agent must not infer that an item is safe.
+3. The script prints a receipt for the **whole request**, labeled
+   `requested`, not accepted or paid. A successful counter test, if made,
+   gets its own confirmed single-item summary.
 
 ### Run it
 
-From `arepa-agent/`, with the prepared photo:
+From `arepa-agent/`:
 
 ```powershell
 python catering.py images/catering-order.jpg
 ```
 
-If the photo is unavailable, or the instructor directs you to the catch-up
-path:
+If the replacement photo is not ready, the catch-up path uses prepared
+JSON and explicitly skips vision:
 
 ```powershell
 python catering.py --extracted examples/request.json
 ```
 
-The fallback validates and reviews prepared JSON against the live menu. It
-does not call the vision model; record the vision checkpoint as not exercised.
+Compare the extraction with the note, then type `yes` to continue only if it
+matches. Otherwise stop and ask the instructor to correct it.
 
-### Check extraction and judgment separately
+Read the policy/menu review. If time permits, explicitly authorize **one test
+order**, choose a current menu item, and give your saved customer ID
+**@lab.Variable(customerID)**. Provide the current dashboard voucher last.
+This tests the counter flow, not food safety or acceptance of catering.
+The script blocks real orders and does not expose registration or cancellation.
 
-- Are the quantities 7, 3, and 5?
-- Is Pernil removed and Pelua substituted?
-- Is the allergy note copied exactly?
-- Are illegible details reported as uncertainties rather than guessed?
-- Do the item names appear on the **current** menu? Availability can change.
-- Does the output clearly say that nothing has been ordered or reserved?
+Type `done` to print the request receipt. You can finish without ordering.
 
-An available menu name does not establish allergen safety. Ask staff about
-the allergy note; the script must not identify an item as safe. The counter
-accepts one item per order, not a multi-item catering checkout. Do not infer
-notice periods, deposits, or catering service from this request.
+### Check the result
 
-**Checkpoint 6.** You reviewed an extracted request against its source and
-the live menu, or explicitly used the pre-extracted fallback. In either
-case, no unconfirmed request became an order or a payment receipt.
+- Are the quantities 7, 3, and 28, with Pelua replacing Pernil?
+- Is the allergy note verbatim, with no safety assurance?
+- Did the agent retrieve the 25+ threshold, 72-hour notice, and 50% deposit?
+- Did it check current menu availability rather than assume it?
+- Does the full-request receipt remain labeled `requested`, with no claim
+  that catering was accepted or a deposit paid?
 
-<!-- Asset pending: prepare the Arepa handwritten photo described above,
-strip metadata, and rehearse extraction before the learner VM is released. -->
+**Checkpoint 6.** A handwritten request was extracted and checked against
+store policy and live tools. Any single-item test order is distinct from
+the unconfirmed catering request. The JSON fallback does not validate vision.

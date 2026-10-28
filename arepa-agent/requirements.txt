@@ -1,0 +1,6 @@
+agent-framework-core>=1.17.0,<1.18
+agent-framework-anthropic>=1.0.0b260910
+mcp>=1.24.0,<2
+anthropic
+python-dotenv
+jsonschema>=4,<5

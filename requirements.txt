@@ -1,0 +1,2 @@
+-r arepa-agent/requirements.txt
+-r foundry-iq/requirements.txt

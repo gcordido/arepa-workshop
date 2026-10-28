@@ -4,73 +4,113 @@ An agent that only chats cannot register a customer or place an order.
 The Arepa Lab **MCP server** provides those tools and the store's persona.
 
 > Model Context Protocol (MCP) connects clients to servers exposing tools,
-> prompts, and resources. A server does not have to publish all three.
-> Our store publishes tools and prompts over Streamable HTTP.
+> prompts, and resources. Our store publishes tools and prompts over
+> Streamable HTTP; a server does not have to publish all three.
 
-### Step A: connect the tools
+### Prepare the changes
 
-Check that the root `.env` includes:
+Check `AREPA_MCP_URL` in the root `.env`. Keep the instructor-supplied URL:
+Azure resource names stay unchanged even though the app serves Arepa Lab.
 
-```dotenv
-AREPA_MCP_URL="https://ca-arepa-mcp.yellowbeach-684b8340.eastus.azurecontainerapps.io/mcp/"
-```
-
-In `agent.py`, find the MCP connection and the agent's tool list:
-
-```python
-store = MCPStreamableHTTPTool(
-    name="arepa-store",
-    url=setting("AREPA_MCP_URL"),
-    parse_tool_results=orders.parse_result,
-)
-await store.connect()
-tools.append(store)
-```
-
-The parser preserves a confirmed order's public summary fields for Module
-1.4. The server still owns validation and ordering. The async cleanup closes
-connections when the program exits or raises an error.
-
-Run the tools-only checkpoint from `arepa-agent/`:
+From `arepa-agent/`, back up your current file:
 
 ```powershell
-python agent.py --module 1.2 --tools-only --trace
+Copy-Item agent.py agent-before-1.2.py
 ```
 
-Ask `Show today's menu only; do not register me or place an order.`
-Watch for a `[tool]` line naming `list_arepas`. Check that the response uses
-the returned names and stock labels, not invented products or raw counts.
-
-Do not order in this step. Type `exit`.
-
-### Step B: load the store's persona
-
-The server publishes two prompts:
-
-- `agent_instructions`: the ordering flow, voice, privacy, and safety rules.
-- `welcome_banner`: the greeting printed by the client at startup.
-
-Find these lines in `agent.py`:
-
-```python
-instructions = await store.get_prompt("agent_instructions")
-banner = await store.get_prompt("welcome_banner")
-```
-
-The instructions go into `Agent(...)`; the banner is printed once. Tools
-make actions possible. Instructions tell the agent how to use them.
-The tools-only comparison omits these explicit prompt calls; the server may
-also supply guidance during connection, so do not expect a particular voice.
-
-Run:
+**Fast path:** copy the completed version, then read the additions below:
 
 ```powershell
-python agent.py --module 1.2 --trace
+Copy-Item snapshots/agent-module-1.2.py agent.py
 ```
 
-### Register once, or return with your ID
+**Edit path:** replace the import section with this block, then replace the
+entire `main()` function with the next block. Keep the existing root `.env`
+loader, `reply` function, and final entry point unchanged.
 
-Answer the agent's first question:
+<!-- build: imports -->
+```python
+import asyncio
+import os
+from contextlib import AsyncExitStack
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+from agent_framework import Agent, MCPStreamableHTTPTool
+from agent_framework.foundry import AnthropicFoundryClient
+
+from settings import ToolTrace
+```
+
+### Tools first, then the persona
+
+In the function below, section **3** connects the tools and registers cleanup.
+Section **4** fetches two server prompts: `agent_instructions` supplies the
+persona, and `welcome_banner` is printed once by the client. Section **5**
+passes the tools and persona to the agent. `ToolTrace` from `settings.py`
+prints tool names without their arguments or full results.
+
+<!-- build: main -->
+```python
+async def main() -> None:
+    # 2. Keep the same configured model client.
+    chat_client = AnthropicFoundryClient(
+        model=os.environ["FOUNDRY_MODEL_DEPLOYMENT"],
+        api_key=os.environ["FOUNDRY_API_KEY"],
+        base_url=os.environ["FOUNDRY_ENDPOINT"],
+    )
+
+    # 3. Discover the store tools; close the connection on exit or error.
+    async with AsyncExitStack() as stack:
+        arepa_tool = MCPStreamableHTTPTool(
+            name="arepa-store",
+            url=os.environ["AREPA_MCP_URL"],
+        )
+        await arepa_tool.connect()
+        stack.push_async_callback(arepa_tool.close)
+
+        # 4. Fetch the server-owned persona and client-rendered banner.
+        instructions = await arepa_tool.get_prompt("agent_instructions")
+        banner = await arepa_tool.get_prompt("welcome_banner")
+
+        # 5. Add tools and instructions; trace only tool names.
+        arepa_agent = Agent(
+            client=chat_client,
+            name="arepa-agent",
+            instructions=instructions,
+            tools=arepa_tool,
+            middleware=[ToolTrace()],
+        )
+
+        # 6. Keep one session and let the agent greet the customer first.
+        arepa_session = arepa_agent.create_session()
+        print(banner)
+        print("Type 'exit' to quit.\n")
+        response = await arepa_agent.run("hello", session=arepa_session)
+        print(f"Arepa Lab:\n{reply(response)}\n")
+
+        # 7. The agent chooses tools during each conversational turn.
+        while True:
+            user_input = input("You:\n").strip()
+            if user_input.lower() in ("exit", "quit"):
+                break
+            if not user_input:
+                continue
+            response = await arepa_agent.run(user_input, session=arepa_session)
+            print(f"\nArepa Lab:\n{reply(response)}\n")
+```
+
+Tools make actions possible; the server's instructions guide the ordering
+flow. `AsyncExitStack` closes the connection on normal exit and on exceptions.
+
+### Run, register once, and inspect the menu
+
+```powershell
+python agent.py
+```
+
+Answer the agent's greeting:
 
 1. **New customer:** provide your first name, last name, and city. The agent
    calls `register_customer` and shows your permanent eight-character ID.
@@ -82,40 +122,37 @@ Answer the agent's first question:
 > @lab.TextBox(customerID)
 
 Do not create a second identity to get another real order.
+Ask `Show today's menu only; do not place an order.`
+Watch for `[tool] list_arepas`; check the returned display names and
+qualitative stock labels. Machine IDs stay internal.
 
 ### Make one explicit order
 
-Choose an item from the current menu by name or number. The agent should
-show display names and qualitative stock, while keeping machine IDs internal.
-
-Choose the order kind:
+Choose a current item by name or number, then choose:
 
 - **Test:** practice only; no stock is consumed and there is no pickup.
 - **Real:** an actual arepa for pickup. Each customer can receive one real
   arepa. If you have already used yours, choose test.
 
-Open the dashboard:
-`https://ca-arepa-mcp.yellowbeach-684b8340.eastus.azurecontainerapps.io/dashboard`
-
+Open the dashboard using the host in `AREPA_MCP_URL`, replacing `/mcp/`
+with `/dashboard`, or use the instructor's projected dashboard.
 Read the current six-character voucher **last**, after the item and kind
-are chosen. Both kinds require it. Let the agent place the order immediately.
-If the code is rejected, reread the screen; do not keep guessing.
+are chosen. Both kinds require it. If rejected, reread the display and follow
+the recovery instructions; do not keep guessing.
 
-Watch the `order_arepa` call and its response:
+Watch the `order_arepa` call and reply:
 
-- A real order is collected only when the dashboard says **Ready for pickup**.
+- Collect a real order only when the dashboard says **Ready for pickup**.
   Look for your displayed board name and follow staff directions.
 - A test order completes automatically in the test feed. It is not tracked
   as an active real order by `check_order_status`.
-- A failed tool call is not a successful order. Follow the agent's correction
-  prompt. If stock changed, choose again from a refreshed menu.
+- A failed tool call is not a successful order. Follow the correction prompt;
+  if stock changed, choose again from a refreshed menu.
 
-**Keep this process open for Module 1.4 if convenient.** The client captures
-the confirmed order result only in memory. If you need to stop, Module 1.4
-also has a simulated example; no second real order is needed.
+Type `exit`. Module 1.4 adds receipt support; use its simulated example or
+a test order, not another real order.
 
-**Checkpoint 3.** Your agent used the live tools and server persona to
+**Checkpoint 3.** Your agent used live tools and the server persona to
 complete an explicit test or real order, and you saved your customer ID.
 
-<!-- Replace the Sparkles dashboard screenshot with an Arepa Lab capture.
-Do not publish the old image or a voucher that appears reusable. -->
+<!-- Replace the old store dashboard screenshot with an Arepa Lab capture. -->

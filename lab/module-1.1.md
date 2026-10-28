@@ -26,15 +26,55 @@ The client adds `/v1/messages` itself. Appending it twice causes a 404.
 
 ### Read the starting checkpoint
 
-Open `arepa-agent/agent.py`. Focus on these lines:
+Open `arepa-agent/agent.py`. The imports are:
 
+<!-- build: imports -->
 ```python
-client = AnthropicFoundryClient(**model_settings())
-agent = Agent(client=client, name="arepa-agent", instructions=instructions, tools=tools)
-session = agent.create_session()
+import asyncio
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+from agent_framework import Agent
+from agent_framework.foundry import AnthropicFoundryClient
 ```
 
-At checkpoint 1.1, the instruction string and tool list are empty.
+The provided file loads the **root** `.env` using its file path and defines
+`reply(response)` to separate text before and after tool calls. Keep both
+of these unchanged throughout Modules 1.1-1.4, along with the final
+`if __name__ == "__main__":` entry point.
+
+Here is the starting `main()` function. You will replace this function in
+each following module, not add a second `main()`:
+
+<!-- build: main -->
+```python
+async def main() -> None:
+    # 2. The configured model client; store tools are added in Module 1.2.
+    chat_client = AnthropicFoundryClient(
+        model=os.environ["FOUNDRY_MODEL_DEPLOYMENT"],
+        api_key=os.environ["FOUNDRY_API_KEY"],
+        base_url=os.environ["FOUNDRY_ENDPOINT"],
+    )
+
+    # 3. The agent starts without store instructions or tools.
+    arepa_agent = Agent(client=chat_client, name="arepa-agent")
+
+    # 4. A session keeps the conversation history.
+    arepa_session = arepa_agent.create_session()
+    print("Arepa Lab agent ready. Type 'exit' to quit.\n")
+
+    # 5. Reuse this session for every conversational turn.
+    while True:
+        user_input = input("You:\n").strip()
+        if user_input.lower() in ("exit", "quit"):
+            break
+        if not user_input:
+            continue
+        response = await arepa_agent.run(user_input, session=arepa_session)
+        print(f"\nArepa Lab:\n{reply(response)}\n")
+```
 
 1. The **client** handles the configured model connection.
 2. The **agent** combines that client with instructions and tools.
@@ -49,10 +89,10 @@ Select **Terminal > New Terminal**. From the project root, run:
 
 ```powershell
 cd arepa-agent
-python agent.py --module 1.1
+python agent.py
 ```
 
-Say `Hello!`, then `My name is Alex.`, then `What name did I give you?`.
+Say `Hello!`, then `My name is Eugenia.`, then `What name did I give you?`.
 The last reply should use the conversation history. Type `exit`.
 
 **Checkpoint 2.** Your Python agent runs, and its session keeps context

@@ -1,0 +1,11 @@
+{
+  "customer": "Eugenia",
+  "items": [
+    {"name": "Catira", "quantity": 7},
+    {"name": "Pelua", "quantity": 3},
+    {"name": "Reina Pepiada", "quantity": 28}
+  ],
+  "allergy_notes": "No nuts please!",
+  "corrections_applied": ["Pernil crossed out and replaced with Pelua."],
+  "uncertainties": []
+}
