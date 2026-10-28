@@ -2,7 +2,7 @@
 
 The back office needs predictable JSON, but predictable JSON is not the same
 as a true receipt. This demo does not process payments. We will summarize a
-confirmed order result without inventing a price, pickup time, or identifier.
+confirmed order result without fabricating a price, pickup time, or identifier.
 
 ### Read the schema and source check
 

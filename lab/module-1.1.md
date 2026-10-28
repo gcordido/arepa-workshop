@@ -21,6 +21,8 @@ throughout the workshop.
 The endpoint must end at `/anthropic`, not `/anthropic/v1/messages`.
 The client adds `/v1/messages` itself. Appending it twice causes a 404.
 
+![Foundry deployment details showing the endpoint and masked API key.](images/04-details-endpoint-key.png)
+
 > Treat the key like a password. Do not paste it into chat or screenshots.
 > The repository ignores `.env`; `.env.example` contains placeholders only.
 
@@ -102,6 +104,3 @@ If a setting is missing, check the root `.env` with your instructor. A 401
 usually means authentication or endpoint configuration needs checking;
 `DeploymentNotFound` means the deployment name does not match. Do not spend
 the lab installing packages or creating deployments.
-
-<!-- Reuse the audited deployment-details image only if its navigation,
-deployment, and endpoint still match the supplied VM. -->
