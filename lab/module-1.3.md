@@ -3,61 +3,45 @@
 The store tools answer questions about current menu, customers, and orders.
 They are not a general policy-document search. A **Foundry IQ** knowledge
 base already exists; you will refresh its store information with the Arepa
-document, then connect your agent. You do not need to create Azure resources.
+document, then connect your agent.
 
 Foundry IQ is a managed knowledge layer built on Azure AI Search. Its MCP
 endpoint gives this agent a second source of tools.
 
-### Refresh the existing store information (2 minutes)
+### Updating our environment variables
 
-Type `exit` in any running agent. Open
-[the Arepa Lab store information](../foundry-iq/docs/arepalab-store-info.md)
-and locate **Ordering**. This is the new source for the existing knowledge
-base, not an attachment to the chat.
-
-The root `.env` must point to the existing workshop Search service and
-`KNOWLEDGE_BASE_NAME="cupcake-store-kb"`. Keep those resource names unchanged.
-Dependencies and upload permissions must be prepared before the workshop.
-Before running ingestion, the instructor must confirm the target service,
-index and KB are approved for this workshop and safe to replace. Having write
-credentials does not establish that authorization. Otherwise use the existing
-query-only connection and report that re-ingestion is still needed.
-
-> **Upload permission:** the agent's `AZURE_SEARCH_QUERY_KEY` cannot upload.
-> Use the workshop Azure identity assigned **Search Service Contributor**
-> and **Search Index Data Contributor** on the existing Search service.
-> If your learner account does not have these roles, the instructor runs
-> this refresh once for the shared service while you follow along. Do not
-> request, copy, or put an admin key in the learner image.
-
-From `arepa-agent/`, sign in with the workshop account if needed, then run:
+Type `exit` in any running agent.Log in by running the following command from the root path:
 
 ```powershell
-az login
-python ../foundry-iq/ingest_foundry_iq.py
+az login --use-device-code
 ```
 
-The script reads the root `.env`, splits `arepalab-store-info.md` by section,
-and attaches the fictional-retail/counter boundary to each chunk, so retrieval
-keeps that context even when it returns only one section. It uploads the chunks
-to `cupcake-store-kb-index`. With the original workshop
-configuration, matching document IDs replace the old section content.
-It also creates or updates the index definition, knowledge source, and KB
-configuration; it is **not** an upload-only command. Run it only against the
-instructor-approved workshop resources, not a KB containing unrelated sources.
-If an `AZURE_SEARCH_ADMIN_KEY` is already set, the script uses that instead
-of your signed-in identity; ask the instructor to check this configuration.
+Then run: 
 
-Check that all chunks were uploaded (`Uploaded N/N chunks`) and that the
-printed endpoint still contains `cupcake-store-kb`. If any upload fails or
-access is denied, stop and ask the instructor; do not treat it as a successful
-refresh. Do not run resource-creation commands or rename the KB.
+```powershell
+Add-Content .env "AZURE_SEARCH_ADMIN_KEY=`"$(az search admin-key show -g @lab.CloudResourceGroup(ClaudeProject).Name --service-name search-cupcake-@lab.LabInstance.Id --query primaryKey -o tsv)`""
+```
 
-The upload does not delete obsolete chunks with other IDs. The instructor
-must ensure the old source has no leftover sections or duplicate cupcake
-documents. For a shared service, refresh once rather than having every
-attendee write simultaneously. If setup is not ready within two minutes,
-use the instructor-refreshed KB to preserve the one-hour schedule.
+This effectively updates our variables so that we can create our knowledge base where the necessary documents will live to be retrieved by our agent.
+
+### Refresh the existing store information (2 minutes)
+
+Open the Arepa Lab store information under `/foundryiq/docs/arepalab-store-info.md`
+and locate **Ordering**. Pay attention to the policies, as these will come up when the agent finally retrieves information.
+
+Then run:
+
+```powershell
+python foundry-iq/ingest_foundry_iq.py
+```
+
+The script only uploads document chunks to the existing `cupcake-store-kb-index`.
+It does not create resources, change the index schema (including the `id`
+field), or update the knowledge source or KB configuration. All resources
+must already exist.
+
+Check for `Uploaded N/N chunks`. Failed uploads raise an error; if a resource
+is missing or access is denied, stop and ask the instructor.
 
 ### Inspect the second connection
 
