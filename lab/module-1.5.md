@@ -7,11 +7,9 @@ and review it, not pretend that the whole request has been accepted.
 ### Inspect the note
 
 Open `written_order.jpg` on the **Desktop** of your Skillable VM.
-The same photo is included in the repository at
-[`lab/images/written_order.jpg`](images/written_order.jpg).
-It shows Eugenia, seven Catira, Pernil crossed out for three Pelua,
-twenty-eight Reina Pepiada, and the allergy note `No nuts please!`.
-The quantities are written as numbers, not tally marks. Compare them yourself
+It shows an order for Eugenia, with seven Catiras, Pernil crossed out for three Peluas and
+twenty-eight Reina Pepiadas, with the allergy note `No nuts please!`.
+The quantities are written as numbers. Compare them yourself
 before trusting extraction; the total is **38 arepas**.
 
 ![Handwritten request for Eugenia: 7 Catira, 3 Pelua replacing Pernil, 28 Reina Pepiada, and a no-nuts note.](images/written_order.jpg)
@@ -36,11 +34,11 @@ Open `arepa-agent/catering.py`. It performs three steps:
    `requested`, not accepted or paid. A successful counter test, if made,
    gets its own confirmed single-item summary.
 
+>[!warning] There is a minor bug on line 32 of the catering.py file. To fix it, replace the code in line 32 for the following `"quantity": {"type": ["integer", "null"]}`
+
 ### Run it
 
-Exit the Module 1.4 agent by typing `exit`. Keep the supplied root `.env`
-unchanged; this helper uses the same model, live counter and Foundry IQ
-configuration. You do not need to edit `agent.py` or attach the photo in the
+Exit the Module 1.4 agent by typing `exit`. You do not need to edit `agent.py` or attach the photo in the
 Foundry playground.
 
 In the VS Code PowerShell terminal, work from `arepa-agent/`. If you opened
@@ -59,24 +57,6 @@ The check should print `True`. Then send the image to the model:
 python catering.py "$orderPhoto"
 ```
 
-If the Desktop check prints `False`, use the identical repository photo
-instead:
-
-```powershell
-python catering.py "../lab/images/written_order.jpg"
-```
-
-Pass the image path explicitly as shown; the script's no-argument default
-points to a different, unprovided photo. Keep quotes around paths, especially
-when they contain spaces. A missing-file error means the photo has not been
-read or sent; check the path and current terminal directory before retrying.
-
-If vision cannot be completed, ask the instructor before using the catch-up
-path. It uses prepared JSON and explicitly skips vision:
-
-```powershell
-python catering.py --extracted examples/request.json
-```
 
 Before any store tools run, the script prints the extracted JSON and asks
 `Does this extraction match the note? Type 'yes' to continue:`.
@@ -105,6 +85,4 @@ Type `done` to print the request receipt. You can finish without ordering.
 - Does the full-request receipt remain labeled `requested`, with no claim
   that catering was accepted or a deposit paid?
 
-**Checkpoint 6.** A handwritten request was extracted and checked against
-store policy and live tools. Any single-item test order is distinct from
-the unconfirmed catering request. The JSON fallback does not validate vision.
+**Checkpoint 6.** You used a handwritten request to create an order, extracted the data and checked against store policy and live tools before trying to create a matching order

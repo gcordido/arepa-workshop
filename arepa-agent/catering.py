@@ -29,7 +29,7 @@ ORDER_SCHEMA = {
                 "properties": {
                     "name": {"type": "string"},
                     # An unreadable quantity stays unknown instead of becoming a guess.
-                    "quantity": {"type": ["integer", "null"], "minimum": 1},
+                    "quantity": {"type": ["integer", "null"]},
                 },
                 "required": ["name", "quantity"],
             },

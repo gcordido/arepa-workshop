@@ -19,13 +19,11 @@ The supplied `/anthropic` endpoint selects `AnthropicFoundryClient` through
 throughout the workshop. The helper also supports a separately configured
 local GPT endpoint; learners keep their supplied workshop configuration.
 
-The endpoint must end at `/anthropic`, not `/anthropic/v1/messages`.
-The client adds `/v1/messages` itself. Appending it twice causes a 404.
+>[!warning]The endpoint must end at `/anthropic`, not `/anthropic/v1/messages`.The client adds `/v1/messages` itself. Appending it twice causes a 404.
 
 ![Foundry deployment details showing the endpoint and masked API key.](images/04-details-endpoint-key.png)
 
-> Treat the key like a password. Do not paste it into chat or screenshots.
-> The repository ignores `.env`; `.env.example` contains placeholders only.
+>[!warning]Treat the key like a password. Do not paste it into chat or screenshots. The repository ignores `.env`; `.env.example` contains placeholders only.
 
 ### Read the starting checkpoint
 
