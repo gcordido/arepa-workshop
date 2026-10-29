@@ -16,6 +16,9 @@ Type `exit` in any running agent.Log in by running the following command from th
 az login --use-device-code
 ```
 
+>[!note]When prompted to select a subscription, simply press ENTER
+
+
 Then run: 
 
 ```powershell
