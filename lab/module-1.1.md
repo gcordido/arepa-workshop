@@ -8,7 +8,7 @@ environment are already prepared.
 Open `.env` at the project root. Leave its supplied values unchanged.
 These settings identify the model client:
 
-```dotenv
+```
 FOUNDRY_ENDPOINT="https://<your-resource>.services.ai.azure.com/anthropic"
 FOUNDRY_API_KEY="<provided-key>"
 FOUNDRY_MODEL_DEPLOYMENT="<provided-deployment-name>"
