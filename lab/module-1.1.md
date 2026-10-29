@@ -1,6 +1,6 @@
 ## Module 1.1: An agent and a session (7 minutes)
 
-Open VS Code from the Desktop shortcut. The workshop project and Python
+Open VS Code from the Desktop shortcut or the bottom taskbar. The workshop project and Python
 environment are already prepared.
 
 ### Check the configuration
@@ -11,11 +11,11 @@ These settings identify the model client:
 ```
 FOUNDRY_ENDPOINT="https://<your-resource>.services.ai.azure.com/anthropic"
 FOUNDRY_API_KEY="<provided-key>"
-FOUNDRY_MODEL_DEPLOYMENT="<provided-deployment-name>"
+FOUNDRY_MODEL_DEPLOYMENT="claude-sonnet-5"
 ```
 
 The supplied `/anthropic` endpoint selects `AnthropicFoundryClient` through
-`create_chat_client()` in `settings.py`. Keep the same Claude deployment
+`create_chat_client()` in `settings.py` (located ni the arepa-agent directory). Keep the same Claude deployment
 throughout the workshop. The helper also supports a separately configured
 local GPT endpoint; learners keep their supplied workshop configuration.
 
@@ -27,7 +27,7 @@ local GPT endpoint; learners keep their supplied workshop configuration.
 
 ### Read the starting checkpoint
 
-Open `arepa-agent/agent.py`. The imports are:
+Open `arepa-agent/agent.py`:
 
 <!-- build: imports -->
 ```python
@@ -38,18 +38,7 @@ from dotenv import load_dotenv
 
 from agent_framework import Agent
 from settings import create_chat_client
-```
 
-The provided file loads the **root** `.env` using its file path and defines
-`reply(response)` to separate text before and after tool calls. Keep both
-of these unchanged throughout Modules 1.1-1.4, along with the final
-`if __name__ == "__main__":` entry point.
-
-Here is the starting `main()` function. You will replace this function in
-each following module, not add a second `main()`:
-
-<!-- build: main -->
-```python
 async def main() -> None:
     # 2. The configured model client; store tools are added in Module 1.2.
     chat_client = create_chat_client()
@@ -81,14 +70,14 @@ prints its reply. Starting a new process creates a new session.
 
 ### Run it
 
-Select **Terminal > New Terminal**. From the project root, run:
+From the top bar select **Terminal > New Terminal**. From the project root, run:
 
 ```powershell
 cd arepa-agent
 python agent.py
 ```
 
-Say `Hello!`, then `My name is Eugenia.`, then `What name did I give you?`.
+Once the agent runs, you will see a `You:` prompt. Say `Hello!`, then `My name is Eugenia.`, then `What name did I give you?`.
 The last reply should use the conversation history. Type `exit`.
 
 **Checkpoint 2.** Your Python agent runs, and its session keeps context

@@ -29,7 +29,7 @@ has. This time includes the lab introduction.
 
 ### Open the configured deployment
 
-Choose **Build (on the top banner) > Models (on the right side) > Deployments**. Open the deployment of **claude-sonnet-5**, then **Open in playground**.
+Choose **Build (on the top banner) > Models (on the left side) > Deployments**. Open the deployment of **claude-sonnet-5**, then **Open in playground tab**.
 You need only this deployment, even if others are listed.
 
 ![Foundry deployments with the configured deployment selected.](images/02-deployments.png)
@@ -44,7 +44,7 @@ In the **Instructions** panel, paste:
 You are the ordering assistant for Arepa Lab, a Venezuelan arepa store.
 ```
 
-Ask:
+Then on the right side chat window, ask:
 
 ```text
 My friend's birthday is coming up and he loves Venezuelan Arepas. Which arepas should I order?

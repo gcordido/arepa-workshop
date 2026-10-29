@@ -16,7 +16,7 @@ Type `exit` in any running agent.Log in by running the following command from th
 az login --use-device-code
 ```
 
->[!note]When prompted to select a subscription, simply press ENTER
+>[!note]Follow through with the steps. When prompted to select a subscription, simply press ENTER
 
 
 Then run: 
@@ -39,7 +39,7 @@ This effectively updates our variables so that we can create our knowledge base 
 Open the Arepa Lab store information under `/foundryiq/docs/arepalab-store-info.md`
 and locate **Ordering**. Pay attention to the policies, as these will come up when the agent finally retrieves information.
 
-Then run:
+Then run from the root directory:
 
 ```powershell
 python foundry-iq/ingest_foundry_iq.py

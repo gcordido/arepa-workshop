@@ -11,7 +11,7 @@ The Arepa Lab **MCP server** provides those tools and the store's persona.
 
 Check `AREPA_MCP_URL` in the root `.env`:
 `https://ca-arepa-mcp.yellowbeach-684b8340.eastus.azurecontainerapps.io/mcp/`.
-Use the trailing-slash canonical path. Azure resource names stay unchanged.
+Use the trailing-slash canonical path.
 
 From `arepa-agent/`, back up your current file:
 
@@ -20,25 +20,7 @@ Copy-Item agent.py agent-before-1.2.py
 ```
 Copy the completed version, then read the additions below:
 
-<!-- build: imports -->
-```python
-import asyncio
-import os
-from contextlib import AsyncExitStack
-from pathlib import Path
-
-from dotenv import load_dotenv
-
-from agent_framework import Agent, MCPStreamableHTTPTool
-from settings import ToolTrace, create_chat_client
-```
-
 ### Tools first, then the persona
-
-In the function below, section **3** connects the tools and registers cleanup.
-Section **4** fetches two server prompts: `agent_instructions` supplies the
-persona, and `welcome_banner` is printed once by the client. Section **5**
-passes the tools and persona to the agent.
 
 <!-- build: main -->
 ```python
@@ -85,6 +67,10 @@ async def main() -> None:
             response = await arepa_agent.run(user_input, session=arepa_session)
             print(f"\nArepa Lab:\n{reply(response)}\n")
 ```
+In the changes above, section **3** connects the tools and registers cleanup.
+Section **4** fetches two server prompts: `agent_instructions` supplies the
+persona, and `welcome_banner` is printed once by the client. Section **5**
+passes the tools and persona to the agent.
 
 Tools make actions possible; the server's instructions guide the ordering
 flow.
