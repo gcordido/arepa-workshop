@@ -29,14 +29,12 @@ has. This time includes the lab introduction.
 
 ### Open the configured deployment
 
-Choose **Build > Models > Deployments**. Open the deployment of claude-sonnet-5, then **Open in playground**.
+Choose **Build (on the top banner) > Models (on the right side) > Deployments**. Open the deployment of **claude-sonnet-5**, then **Open in playground**.
 You need only this deployment, even if others are listed.
 
 ![Foundry deployments with the configured deployment selected.](images/02-deployments.png)
 
-> A model is the underlying capability. A deployment is the named endpoint
-> configured in your project. The agent adds instructions, state, and tools
-> around that client.
+>[!knowledge] A model is the underlying capability. A deployment is the named endpoint configured in your project. The agent adds instructions, state, and tools around that client.
 
 ### Give it a role
 
@@ -64,10 +62,7 @@ If it fabricated a reasonable-sounding policy, that is the risk: confidence
 without a source. If it admits not knowing, that is the right boundary.
 Nothing in this conversation establishes Arepa Lab's actual refund policy.
 
-In Module 1.2, tools
-will provide live store data. In Module 1.3, a knowledge base will provide
-documented store information.
-
+In Module 1.2, tools will provide live store data. In Module 1.3, a knowledge base will provide documented store information.
 
 ### Look at the code
 

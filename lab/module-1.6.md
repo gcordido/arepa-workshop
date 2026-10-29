@@ -1,4 +1,4 @@
-## Module 1.6: Evaluate the agent, not just its answer (9 minutes)
+## OPTIONAL Module 1.6: Evaluate the agent, not just its answer (9 minutes)
 
 No new code or model deployment. Use the same configured model and check
 the agent against a short behavioral rubric.
