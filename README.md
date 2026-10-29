@@ -62,7 +62,8 @@ For a separate local setup, you need:
   deployment name. Use Claude for the workshop or the optional GPT setup below.
 - Access to the hosted Arepa Lab MCP counter.
 - For Modules 1.3-1.6, an existing Foundry IQ knowledge base and Search query key.
-  Module 1.5 also needs an instructor-supplied photo or the prepared JSON fallback.
+  Module 1.5 uses [the included handwritten request](lab/images/written_order.jpg),
+  also supplied on the Skillable VM Desktop, or the prepared JSON fallback.
 
 Keep the client environment separate from any MCP server environment.
 The [integration guide](tests/e2e/README.md) lists the additional server and
@@ -263,7 +264,9 @@ Never run write/lifecycle regression against the hosted workshop counter.
 Results identify the actual model deployment and protocol. Live GPT evidence
 does not establish a live Claude pass. Live Claude execution, IQ retrieval,
 real-photo extraction and the combined catering flow still need appropriate
-configuration and validation; the instructor-supplied photo is not included.
+configuration and validation. The photo is included at
+[`lab/images/written_order.jpg`](lab/images/written_order.jpg); its presence
+alone does not establish a successful live extraction.
 
 ## Troubleshooting
 
@@ -277,4 +280,4 @@ configuration and validation; the instructor-supplied photo is not included.
 | Knowledge connection fails | Check the existing Search endpoint, query key and `cupcake-store-kb`; Module 1.2 can run without IQ. Do not run ingestion as a connection fix. |
 | Voucher, stock or order rejection | Follow [error recovery](#error-recovery); do not guess codes or register a new identity to evade limits. |
 | `receipt` says no confirmed order | Capture exists only in the current process and clears after failed actions or successful registration/cancellation. Use a test order or the labeled simulated standalone example in [Module 1.4](lab/module-1.4.md). |
-| Catering photo missing | Ask the instructor for it, or use `python catering.py --extracted examples/request.json` from `arepa-agent/`. The fallback does not validate vision; review the JSON before continuing. |
+| Catering photo missing | Follow [Module 1.5](lab/module-1.5.md) to use the Skillable VM Desktop photo, or run `python catering.py "../lab/images/written_order.jpg"` from `arepa-agent/`. Use `python catering.py --extracted examples/request.json` only for the explicit catch-up path; it does not validate vision. |
